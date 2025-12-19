@@ -244,9 +244,9 @@ contract KSAggregationRouterV3 is
   function _callExecutor(address executor, uint256 nativeValue, bytes calldata executorData)
     internal
   {
-    (bool success,) = executor.call{
-      value: nativeValue
-    }(abi.encodeCall(IKSAggregationExecutor.callBytes, (executorData)));
+    (bool success,) = executor.call{value: nativeValue}(
+      abi.encodeCall(IKSAggregationExecutor.callBytes, (executorData))
+    );
     if (!success) {
       CustomRevert.bubbleUpAndRevertWith(
         executor, IKSAggregationExecutor.callBytes.selector, CallExecutorFailed.selector
@@ -304,7 +304,7 @@ contract KSAggregationRouterV3 is
   ) internal checkLengths(feeRecipients.length, fees.length) returns (uint256 outputAmount) {
     if (feeRecipients.length > 0) {
       outputAmount = token.selfBalance() - previousBalance;
-      // Keep at least one token in the contract
+      // keep at least one wei in the contract to reduce the gas cost
       if (outputAmount > 0 && previousBalance == 0) {
         unchecked {
           outputAmount--;
@@ -323,17 +323,18 @@ contract KSAggregationRouterV3 is
         }
       }
 
+      // deduct the fees from the output amount
       outputAmount -= totalFeeAmount;
-      if (outputAmount < minAmount) {
-        revert NotEnoughOutputAmount(minAmount, outputAmount);
-      }
 
+      // there may be a mismatch between the transferred amount and the increase of the recipient's balance
+      // so we do slippage check after transferring the output token to the recipient
+      previousBalance = token.balanceOf(recipient);
       token.safeTransfer(recipient, outputAmount);
-    } else {
-      outputAmount = token.balanceOf(recipient) - previousBalance;
-      if (outputAmount < minAmount) {
-        revert NotEnoughOutputAmount(minAmount, outputAmount);
-      }
+    }
+
+    outputAmount = token.balanceOf(recipient) - previousBalance;
+    if (outputAmount < minAmount) {
+      revert NotEnoughOutputAmount(minAmount, outputAmount);
     }
   }
 
