@@ -244,9 +244,9 @@ contract KSAggregationRouterV3 is
   function _callExecutor(address executor, uint256 nativeValue, bytes calldata executorData)
     internal
   {
-    (bool success,) = executor.call{value: nativeValue}(
-      abi.encodeCall(IKSAggregationExecutor.callBytes, (executorData))
-    );
+    (bool success,) = executor.call{
+      value: nativeValue
+    }(abi.encodeCall(IKSAggregationExecutor.callBytes, (executorData)));
     if (!success) {
       CustomRevert.bubbleUpAndRevertWith(
         executor, IKSAggregationExecutor.callBytes.selector, CallExecutorFailed.selector
