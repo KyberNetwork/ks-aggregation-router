@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-interface IKSAggregationRouterV3 {
+import {IKSGenericRouter} from 'ks-allowance-hub/src/interfaces/IKSGenericRouter.sol';
+
+interface IKSAggregationRouterV3 is IKSGenericRouter {
   /// @notice Thrown when the deadline is passed
   error DeadlinePassed(uint256 deadline, uint256 blockTimestamp);
 
