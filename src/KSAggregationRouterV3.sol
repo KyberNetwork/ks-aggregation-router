@@ -4,6 +4,8 @@ pragma solidity 0.8.30;
 import {IKSAggregationExecutor} from './interfaces/IKSAggregationExecutor.sol';
 import {IKSAggregationRouterV3} from './interfaces/IKSAggregationRouterV3.sol';
 
+import {IKSGenericRouter} from 'ks-allowance-hub/src/interfaces/IKSGenericRouter.sol';
+
 import {IAllowanceTransfer} from 'ks-common-sc/src/interfaces/IAllowanceTransfer.sol';
 
 import {CustomRevert} from 'ks-common-sc/src/libraries/CustomRevert.sol';
@@ -55,7 +57,7 @@ contract KSAggregationRouterV3 is
 
   /// @inheritdoc IKSAggregationRouterV3
   function swap(SwapParams calldata params)
-    external
+    public
     payable
     isNotLocked
     whenNotPaused
@@ -102,6 +104,17 @@ contract KSAggregationRouterV3 is
     unchecked {
       gasUsed = gasBefore - gasleft();
     }
+  }
+
+  /// @inheritdoc IKSGenericRouter
+  function ksExecute(bytes calldata data) public payable returns (bytes memory) {
+    SwapParams calldata params;
+    assembly ('memory-safe') {
+      params := add(data.offset, 0x20)
+    }
+
+    (uint256[] memory outputAmounts,) = swap(params);
+    return abi.encode(outputAmounts);
   }
 
   function msgSender() external view returns (address) {
@@ -244,9 +257,9 @@ contract KSAggregationRouterV3 is
   function _callExecutor(address executor, uint256 nativeValue, bytes calldata executorData)
     internal
   {
-    (bool success,) = executor.call{
-      value: nativeValue
-    }(abi.encodeCall(IKSAggregationExecutor.callBytes, (executorData)));
+    (bool success,) = executor.call{value: nativeValue}(
+      abi.encodeCall(IKSAggregationExecutor.callBytes, (executorData))
+    );
     if (!success) {
       CustomRevert.bubbleUpAndRevertWith(
         executor, IKSAggregationExecutor.callBytes.selector, CallExecutorFailed.selector
