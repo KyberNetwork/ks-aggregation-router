@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {IKSGenericRouter} from 'ks-allowance-hub/src/interfaces/IKSGenericRouter.sol';
-
-interface IKSAggregationRouterV3 is IKSGenericRouter {
+interface IKSAggregationRouterV3 {
   /// @notice Thrown when the deadline is passed
   error DeadlinePassed(uint256 deadline, uint256 blockTimestamp);
 
@@ -104,6 +102,9 @@ interface IKSAggregationRouterV3 is IKSGenericRouter {
     external
     payable
     returns (uint256[] memory outputAmounts, uint256 gasUsed);
+
+  /// @notice Executes with given data
+  function ksExecute(bytes calldata data) external payable returns (bytes memory);
 
   /// @notice Returns the address of who called the swap function
   function msgSender() external view returns (address);

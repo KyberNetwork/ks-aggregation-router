@@ -4,8 +4,6 @@ pragma solidity 0.8.30;
 import {IKSAggregationExecutor} from './interfaces/IKSAggregationExecutor.sol';
 import {IKSAggregationRouterV3} from './interfaces/IKSAggregationRouterV3.sol';
 
-import {IKSGenericRouter} from 'ks-allowance-hub/src/interfaces/IKSGenericRouter.sol';
-
 import {IAllowanceTransfer} from 'ks-common-sc/src/interfaces/IAllowanceTransfer.sol';
 
 import {CustomRevert} from 'ks-common-sc/src/libraries/CustomRevert.sol';
@@ -106,7 +104,7 @@ contract KSAggregationRouterV3 is
     }
   }
 
-  /// @inheritdoc IKSGenericRouter
+  /// @inheritdoc IKSAggregationRouterV3
   function ksExecute(bytes calldata data) public payable returns (bytes memory) {
     SwapParams calldata params;
     assembly ('memory-safe') {
