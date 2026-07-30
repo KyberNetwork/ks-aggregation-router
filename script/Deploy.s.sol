@@ -6,7 +6,7 @@ import 'ks-common-sc/script/Base.s.sol';
 import 'src/KSAggregationRouterV3.sol';
 
 contract DeployScript is BaseScript {
-  string salt = '';
+  string salt = '260730';
 
   address admin;
   address[] guardians;
