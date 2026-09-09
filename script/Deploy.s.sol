@@ -1,46 +1,42 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import 'ks-common-sc/script/Base.s.sol';
+import './Base.s.sol';
 
-import 'src/KSAggregationRouterV3.sol';
+contract DeployScript is BaseRouterScript {
+  string salt = '260909_933';
 
-contract DeployScript is BaseScript {
-  string salt = '';
-
-  address admin;
-  address[] guardians;
-  address[] rescuers;
-  address[] executors;
-  address permit2;
-
-  function setUp() public override {
-    super.setUp();
-
-    admin = _readAddress('admin');
-    guardians = _readAddressArray('guardians');
-    rescuers = _readAddressArray('rescuers');
-    executors = _readAddressArray('executors');
-    permit2 = _readAddress('permit2');
-  }
-
-  function run() public {
+  /**
+   * @dev Deploys KSAggregationRouterV3 to specified chains
+   *
+   * Usage:
+   * Deploy to multiple chains using chain ids
+   * forge script DeployScript \
+   *   --sig "run(string[])" \
+   *   "[1,137,8453]" \
+   *   --broadcast
+   */
+  function run(string[] memory chainIds) public multiChain(chainIds) {
     if (bytes(salt).length == 0) {
       revert('salt is required');
     }
-    salt = string.concat('KSAggregationRouterV3_', salt);
+    string memory contractSalt = string.concat('KSAggregationRouterV3_', salt);
 
+    uint256 chainId = vm.getChainId();
     bytes memory creationCode = abi.encodePacked(
       type(KSAggregationRouterV3).creationCode,
-      abi.encode(admin, guardians, rescuers, executors, permit2)
+      abi.encode(
+        adminOf[chainId],
+        guardiansOf[chainId],
+        rescuersOf[chainId],
+        executorsOf[chainId],
+        permit2Of[chainId]
+      )
     );
 
-    // Deploy the router
-    vm.startBroadcast();
-    address newRouter = _create3Deploy(keccak256(abi.encodePacked(salt)), creationCode);
-    vm.stopBroadcast();
-
-    // Write the router address to the config file
-    _writeAddress('router', newRouter);
+    (address router,) = _createXDeploy(keccak256(abi.encodePacked(contractSalt)), creationCode);
+    if (vm.isContext(VmSafe.ForgeContext.ScriptBroadcast)) {
+      _writeAddress('router', router);
+    }
   }
 }

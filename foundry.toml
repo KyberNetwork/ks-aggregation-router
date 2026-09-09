@@ -17,4 +17,4 @@ number_underscore = 'thousands'
 sort_imports = true
 
 [rpc_endpoints]
-sepolia = "${RPC_ETH_SEPOLIA}"
+sepolia = "${RPC_11155111}"
