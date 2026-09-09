@@ -1,3 +1,6 @@
-forge-std/=lib/ks-common-sc/lib/forge-std/src/
+forge-std/=lib/ks-common-sc-script/lib/forge-std/src/
 ks-common-sc/=lib/ks-common-sc/
 openzeppelin-contracts/=lib/ks-common-sc/lib/openzeppelin-contracts/
+ks-common-sc-script/=lib/ks-common-sc-script/
+src/interfaces/ICREATE3Factory.sol=lib/ks-common-sc-script/src/interfaces/ICREATE3Factory.sol
+src/interfaces/ICreateX.sol=lib/ks-common-sc-script/src/interfaces/ICreateX.sol
