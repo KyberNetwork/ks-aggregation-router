@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import './Base.s.sol';
 
 contract DeployScript is BaseRouterScript {
-  string salt = '';
+  string salt = '260909_933';
 
   /**
    * @dev Deploys KSAggregationRouterV3 to specified chains
