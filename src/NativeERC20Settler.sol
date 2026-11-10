@@ -10,7 +10,7 @@ import {TokenHelper} from 'ks-common-sc/src/libraries/token/TokenHelper.sol';
 
 /// @title NativeERC20Settler
 /// @notice Transfers its entire balance of each given native or ERC20 token to a recipient,
-/// reverting if any balance is below its minimum amount
+/// reverting if the recipient receives less than the minimum amount of any token
 contract NativeERC20Settler is INativeERC20Settler, ICommon {
   using CalldataDecoder for bytes;
   using TokenHelper for address;
@@ -20,7 +20,7 @@ contract NativeERC20Settler is INativeERC20Settler, ICommon {
   /**
    * @inheritdoc IKSGenericRouter
    * @dev `data` is `abi.encode(address[] tokens, uint256[] minAmounts, address recipient)`.
-   * Returns `abi.encode(uint256[] amounts)`, the amount transferred for each token.
+   * Returns `abi.encode(uint256[] amounts)`, the increase in the recipient's balance of each token.
    */
   function ksExecute(bytes calldata data) external payable returns (bytes memory) {
     address[] calldata tokens = data.decodeAddressArray(0);
@@ -32,13 +32,15 @@ contract NativeERC20Settler is INativeERC20Settler, ICommon {
 
     uint256[] memory amounts = new uint256[](tokens.length);
     for (uint256 i = 0; i < tokens.length; i++) {
-      uint256 balance = tokens[i].selfBalance();
-      if (balance < minAmounts[i]) {
-        revert InsufficientBalance(tokens[i], balance, minAmounts[i]);
-      }
+      address token = tokens[i];
+      uint256 balanceBefore = token.balanceOf(recipient);
+      token.safeTransfer(recipient, token.selfBalance());
 
-      tokens[i].safeTransfer(recipient, balance);
-      amounts[i] = balance;
+      uint256 receivedAmount = token.balanceOf(recipient) - balanceBefore;
+      if (receivedAmount < minAmounts[i]) {
+        revert InsufficientReceivedAmount(token, receivedAmount, minAmounts[i]);
+      }
+      amounts[i] = receivedAmount;
     }
 
     return abi.encode(amounts);
