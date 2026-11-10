@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
-import {IKSGenericRouter} from './interfaces/IKSGenericRouter.sol';
 import {INativeERC20Settler} from './interfaces/INativeERC20Settler.sol';
 
 import {ICommon} from 'ks-common-sc/src/interfaces/ICommon.sol';
@@ -17,11 +16,7 @@ contract NativeERC20Settler is INativeERC20Settler, ICommon {
 
   receive() external payable {}
 
-  /**
-   * @inheritdoc IKSGenericRouter
-   * @dev `data` is `abi.encode(address[] tokens, uint256[] minAmounts, address recipient)`.
-   * Returns `abi.encode(uint256[] amounts)`, the increase in the recipient's balance of each token.
-   */
+  /// @inheritdoc INativeERC20Settler
   function ksExecute(bytes calldata data) external payable returns (bytes memory) {
     address[] calldata tokens = data.decodeAddressArray(0);
     uint256[] calldata minAmounts = data.decodeUint256Array(1);
