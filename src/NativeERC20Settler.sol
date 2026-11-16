@@ -2,12 +2,11 @@
 pragma solidity 0.8.30;
 
 import {INativeERC20Settler} from './interfaces/INativeERC20Settler.sol';
+import {INativeERC20SettlerCallback} from './interfaces/INativeERC20SettlerCallback.sol';
 
 import {ICommon} from 'ks-common-sc/src/interfaces/ICommon.sol';
 import {CalldataDecoder} from 'ks-common-sc/src/libraries/calldata/CalldataDecoder.sol';
 import {TokenHelper} from 'ks-common-sc/src/libraries/token/TokenHelper.sol';
-
-import {Address} from 'openzeppelin-contracts/contracts/utils/Address.sol';
 
 /// @title NativeERC20Settler
 /// @notice Transfers the entire balance of each given native or ERC20 token, held by itself or
@@ -40,7 +39,7 @@ contract NativeERC20Settler is INativeERC20Settler, ICommon {
     }
 
     if (callbackData.length != 0) {
-      Address.functionCall(from, callbackData);
+      INativeERC20SettlerCallback(from).nativeERC20SettlerCallback(tokens, minAmounts, callbackData);
     } else {
       for (uint256 i = 0; i < tokens.length; i++) {
         address token = tokens[i];
