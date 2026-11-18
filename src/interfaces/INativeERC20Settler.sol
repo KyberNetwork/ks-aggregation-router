@@ -8,9 +8,9 @@ interface INativeERC20Settler {
   error InsufficientReceivedAmount(address token, uint256 receivedAmount, uint256 minAmount);
 
   /**
-   * @notice Transfers the entire balance of each token to `to`, or calls `from` back to transfer
-   * the tokens, reverting if the balance of `to` in any token increases by less than its minimum
-   * amount
+   * @notice Called by the allowance hub with a solver call. Transfers the entire balance of each
+   * token to `to`, or calls `from` back to transfer the tokens, reverting if the balance of `to` in
+   * any token increases by less than its minimum amount
    * @dev When `callbackData` is non-empty, this contract calls
    * {INativeERC20SettlerCallback-nativeERC20SettlerCallback} on `from` with `tokens`, `minAmounts`
    * and `callbackData` in place of any transfer of its own, and `from` must be a contract.
@@ -23,5 +23,17 @@ interface INativeERC20Settler {
    * `address(0)` and a zero `from` transfers this contract's own balances
    * @return `abi.encode(uint256[] amounts)`, the increase in the balance of `to` in each token
    */
-  function ksExecute(bytes calldata data) external payable returns (bytes memory);
+  function solverCall(bytes calldata data) external payable returns (bytes memory);
+
+  /**
+   * @notice Called by the allowance hub with an owner call. Behaves as {solverCall} with
+   * `ownerData` as its data
+   * @param ownerData The data signed by the owner, in the layout of the data of {solverCall}
+   * @param solverData The data chosen by the solver, which is ignored
+   * @return `abi.encode(uint256[] amounts)`, the increase in the balance of `to` in each token
+   */
+  function ownerCall(bytes calldata ownerData, bytes calldata solverData)
+    external
+    payable
+    returns (bytes memory);
 }

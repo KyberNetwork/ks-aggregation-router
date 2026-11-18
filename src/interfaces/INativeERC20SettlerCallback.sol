@@ -10,7 +10,7 @@ interface INativeERC20SettlerCallback {
    * @param tokens The tokens to transfer, where native tokens are given as
    * `TokenHelper.NATIVE_ADDRESS` or `address(0)`
    * @param minAmounts The minimum amount of each token that the recipient must receive
-   * @param callbackData The data passed to {NativeERC20Settler-ksExecute}
+   * @param callbackData The `callbackData` field of the data of {INativeERC20Settler-solverCall}
    */
   function nativeERC20SettlerCallback(
     address[] calldata tokens,
