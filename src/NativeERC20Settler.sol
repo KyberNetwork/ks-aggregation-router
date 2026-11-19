@@ -19,12 +19,7 @@ contract NativeERC20Settler is INativeERC20Settler, ICommon {
   receive() external payable {}
 
   /// @inheritdoc INativeERC20Settler
-  function solverCall(bytes calldata data) external payable returns (bytes memory) {
-    return _settle(data);
-  }
-
-  /// @inheritdoc INativeERC20Settler
-  function ownerCall(bytes calldata ownerData, bytes calldata)
+  function execute(bytes calldata ownerData, bytes calldata)
     external
     payable
     returns (bytes memory)
@@ -32,7 +27,7 @@ contract NativeERC20Settler is INativeERC20Settler, ICommon {
     return _settle(ownerData);
   }
 
-  /// @notice Settles the tokens described by `data`, in the layout of {solverCall}
+  /// @notice Settles the tokens described by `data`, in the layout of `ownerData` of {execute}
   function _settle(bytes calldata data) internal returns (bytes memory) {
     address[] calldata tokens = data.decodeAddressArray(0);
     uint256[] calldata minAmounts = data.decodeUint256Array(1);

@@ -8,7 +8,7 @@ interface INativeERC20Settler {
   error InsufficientReceivedAmount(address token, uint256 receivedAmount, uint256 minAmount);
 
   /**
-   * @notice Called by the allowance hub with a solver call. Transfers the entire balance of each
+   * @notice Called by the allowance hub with an owner call. Transfers the entire balance of each
    * token to `to`, or calls `from` back to transfer the tokens, reverting if the balance of `to` in
    * any token increases by less than its minimum amount
    * @dev When `callbackData` is non-empty, this contract calls
@@ -18,21 +18,14 @@ interface INativeERC20Settler {
    * `from`, in the amount of its entire balance. Any caller can transfer from any address that has
    * approved this contract, so an approval must be used in the transaction that grants it. Native
    * tokens are always transferred from this contract's native balance.
-   * @param data `abi.encode(address[] tokens, uint256[] minAmounts, address from, address to,
-   * bytes callbackData)`, where native tokens are given as `TokenHelper.NATIVE_ADDRESS` or
-   * `address(0)` and a zero `from` transfers this contract's own balances
-   * @return `abi.encode(uint256[] amounts)`, the increase in the balance of `to` in each token
-   */
-  function solverCall(bytes calldata data) external payable returns (bytes memory);
-
-  /**
-   * @notice Called by the allowance hub with an owner call. Behaves as {solverCall} with
-   * `ownerData` as its data
-   * @param ownerData The data signed by the owner, in the layout of the data of {solverCall}
+   * @param ownerData The data signed by the owner, `abi.encode(address[] tokens,
+   * uint256[] minAmounts, address from, address to, bytes callbackData)`, where native tokens are
+   * given as `TokenHelper.NATIVE_ADDRESS` or `address(0)` and a zero `from` transfers this
+   * contract's own balances
    * @param solverData The data chosen by the solver, which is ignored
    * @return `abi.encode(uint256[] amounts)`, the increase in the balance of `to` in each token
    */
-  function ownerCall(bytes calldata ownerData, bytes calldata solverData)
+  function execute(bytes calldata ownerData, bytes calldata solverData)
     external
     payable
     returns (bytes memory);
